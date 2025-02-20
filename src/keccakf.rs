@@ -65,22 +65,11 @@ extern "C" {
 /// # Arguments
 /// * `buffer` - Mutable reference to an array of 25 u64 values representing the state
 pub fn keccakf(buffer: &mut [u64; 25]) {
-    let buffer_input_u8 = u64_to_u8_le(*buffer);
-    let mut buffer_with_result = [0u8; 400];
-    // Copy input to first half
-    buffer_with_result[..200].copy_from_slice(&buffer_input_u8);
+    let mut buffer_u8 = u64_to_u8_le(*buffer);
     unsafe {
-        keccak_permutation(buffer_with_result.as_mut_ptr());
+        keccak_permutation(buffer_u8.as_mut_ptr());
     }
-    
-    // Get result from second half where the builtin wrote it
-    let buffer_output_u8 = {
-        let mut temp = [0u8; 200];
-        temp.copy_from_slice(&buffer_with_result[200..400]);
-        temp
-    };
-    
-    *buffer = u8_to_u64_le(buffer_output_u8);
+    *buffer = u8_to_u64_le(buffer_u8);
 }
 
 pub struct KeccakF;
